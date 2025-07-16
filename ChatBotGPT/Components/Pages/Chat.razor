@@ -1,7 +1,7 @@
 ﻿@page "/chat"
 
 
-@inject OpenAIService AiService
+@inject IChatBotService AiService
 
 <h3>چت‌بات هوشمند GPT 🤖</h3>
 
@@ -25,7 +25,7 @@
     private List<ChatMessage> messages = new();
     private string userInput = "";
     private bool isLoading = false;
-
+    private bool isFirstMessage = true;
     private async Task HandleKey(KeyboardEventArgs e)
     {
         if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(userInput))
@@ -35,11 +35,27 @@
             userInput = "";
             isLoading = true;
 
-            var response = await AiService.GetChatResponseAsync(messages);
-            messages.Add(new ChatMessage { Role = "assistant", Content = response });
+            if (isFirstMessage)
+            {
+                var response = await AiService.GenerateAnswerAsync(userInput, "deepseek-ai/DeepSeek-R1", isFirstMessage);
+                messages.Add(new ChatMessage { Role = "assistant", Content = response.Choices[0].Message.Content });
+                isFirstMessage = false;
+                isLoading = false;
+                StateHasChanged();
+            }
+            else
+            {
 
-            isLoading = false;
-            StateHasChanged();
+
+                var response = await AiService.GenerateAnswerAsync(prompt, "deepseek-ai/DeepSeek-R1", isFirstMessage);
+
+                messages.Add(new ChatMessage { Role = "assistant", Content = response.Choices[0].Message.Content });
+
+                isLoading = false;
+                StateHasChanged();
+            }
         }
+       
     }
+    
 }

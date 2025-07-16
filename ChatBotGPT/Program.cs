@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddHttpClient<OpenAIService>();
-builder.Services.AddSingleton<OpenAIService>();
+builder.Services.AddSingleton<IChatBotService, ChatBotService>();
 
 var app = builder.Build();
 
