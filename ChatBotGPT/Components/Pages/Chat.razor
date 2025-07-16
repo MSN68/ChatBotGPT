@@ -1,0 +1,45 @@
+﻿@page "/chat"
+
+
+@inject OpenAIService AiService
+
+<h3>چت‌بات هوشمند GPT 🤖</h3>
+
+<div class="chat-box">
+    @foreach (var msg in messages)
+    {
+        <div class="@($"msg {msg.Role}")">
+            <b>@msg.Role:</b> @msg.Content
+        </div>
+    }
+</div>
+
+<input @bind="userInput" @onkeydown="HandleKey" class="form-control" placeholder="پیامت رو بنویس..." />
+
+@if (isLoading)
+{
+    <p>در حال پاسخ‌گویی...</p>
+}
+
+@code {
+    private List<ChatMessage> messages = new();
+    private string userInput = "";
+    private bool isLoading = false;
+
+    private async Task HandleKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(userInput))
+        {
+            messages.Add(new ChatMessage { Role = "user", Content = userInput });
+            var prompt = userInput;
+            userInput = "";
+            isLoading = true;
+
+            var response = await AiService.GetChatResponseAsync(messages);
+            messages.Add(new ChatMessage { Role = "assistant", Content = response });
+
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+}
