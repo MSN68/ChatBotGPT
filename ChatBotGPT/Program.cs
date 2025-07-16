@@ -1,10 +1,13 @@
 using ChatBotGPT.Components;
+using ChatBotGPT.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddHttpClient<OpenAIService>();
+builder.Services.AddSingleton<OpenAIService>();
 
 var app = builder.Build();
 
